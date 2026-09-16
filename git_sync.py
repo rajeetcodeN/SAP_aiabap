@@ -12,12 +12,23 @@ from typing import Dict, Any
 class GitSync:
     def __init__(self, repo_root: str = None):
         if repo_root is None:
-            # Default to parent directory of web-app
-            self.repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+            current_dir = os.path.abspath(os.path.dirname(__file__))
+            parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
+            # If parent directory has .git or .abapgit.xml (monorepo), use parent; else use current directory
+            if os.path.exists(os.path.join(parent_dir, ".git")) or os.path.exists(os.path.join(parent_dir, ".abapgit.xml")):
+                self.repo_root = parent_dir
+            else:
+                self.repo_root = current_dir
         else:
             self.repo_root = os.path.abspath(repo_root)
+
         self.src_dir = os.path.join(self.repo_root, "src")
-        os.makedirs(self.src_dir, exist_ok=True)
+        try:
+            os.makedirs(self.src_dir, exist_ok=True)
+        except Exception:
+            # Fallback to local src in current directory
+            self.src_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
+            os.makedirs(self.src_dir, exist_ok=True)
 
     def write_class_files(self, class_name: str, class_code: str, 
                            test_code: str, xml_code: str) -> Dict[str, Any]:
