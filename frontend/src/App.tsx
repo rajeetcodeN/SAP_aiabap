@@ -6,7 +6,7 @@ import {
   Moon, Sun, Copy, Check, ChevronDown, ChevronUp, ArrowUp,
   ShieldCheck, GitCommit, FileCode, CheckCircle, XCircle,
   Link2, Database, Key, Globe, Radio, Sparkles, ExternalLink,
-  ArrowRight, Workflow, Cpu, Lock, FileText, CheckCheck, HelpCircle,
+  ArrowRight, ArrowDown, Workflow, Cpu, Lock, FileText, CheckCheck, HelpCircle,
   Info, Sliders, Eye
 } from 'lucide-react';
 
@@ -1969,6 +1969,9 @@ export default function App() {
 
         {/* ========================================================= */}
         {/* ========================================================= */}
+        {/* ========================================================= */}
+        {/* ========================================================= */}
+        {/* ========================================================= */}
         {/* ARCHITECTURE GUIDE TAB */}
         {/* ========================================================= */}
         {activeTab === 'guide' && (
@@ -1989,7 +1992,7 @@ export default function App() {
                   <span className="px-2 py-0.5 font-medium text-slate-400">Filter:</span>
                   {[
                     { id: 'all', label: 'All Sections' },
-                    { id: 'overview', label: '1. Overview' },
+                    { id: 'overview', label: '1. Overview & Diagram' },
                     { id: 'dual-channel', label: '2. Dual-Channel Model' },
                     { id: 'how-it-works', label: '3. How It Works (Loop)' },
                     { id: 'how-to-use', label: '4. How to Use' },
@@ -2021,12 +2024,176 @@ export default function App() {
                 <section id="guide-overview" className="space-y-4">
                   <div className="border-b border-slate-200 pb-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-blue-700 border border-blue-200">
-                      <Cpu className="h-3 w-3" /> Section 1: Platform Fundamentals
+                      <Cpu className="h-3 w-3" /> Section 1: Platform Fundamentals & Architecture Blueprint
                     </span>
                     <h2 className="text-lg font-bold text-slate-900 mt-2">System Philosophy & Architecture Overview</h2>
                     <p className="text-xs text-slate-500">
                       Autonomous ABAP software engineering without manual copy-pasting or obsolete legacy syntax.
                     </p>
+                  </div>
+
+                  {/* MODERN LIGHT ARCHITECTURE BLUEPRINT (DIAGRAM 1) */}
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 shadow-xs space-y-5">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <Workflow className="h-4 w-4 text-blue-600" />
+                        <span className="font-bold text-xs text-slate-900 uppercase tracking-wider">
+                          System Architecture Diagram: End-to-End Component Topology
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 font-semibold">
+                        Architecture Flow
+                      </span>
+                    </div>
+
+                    {/* Layer 1: Developer Client */}
+                    <div className="rounded-xl border border-blue-200 bg-white p-4 space-y-2 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-blue-600 text-white font-bold text-[10px] px-2 py-0.5 uppercase tracking-wide">Tier 1</span>
+                          <span className="font-bold text-xs text-slate-900">Developer Client & React Studio</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Port 8080 (Vite / React)</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs pt-1">
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Monaco Editor</span>
+                          <span className="text-[10px] text-slate-500">Clean ABAP 7.50+ / vs-light</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Dual-Tier Toolbar</span>
+                          <span className="text-[10px] text-slate-500">Tabs, Syntax, Tests, Diff</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Intake & Dictation</span>
+                          <span className="text-[10px] text-slate-500">Voice Speech-to-Text & Chat</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Live Diagnostics</span>
+                          <span className="text-[10px] text-slate-500">Telemetry & Connections Hub</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Connector 1 -> 2 */}
+                    <div className="flex flex-col items-center justify-center -my-1 text-slate-400">
+                      <div className="h-3 w-0.5 bg-slate-300" />
+                      <span className="bg-white px-3 py-0.5 text-[10px] font-mono text-slate-600 border border-slate-200 rounded-full shadow-2xs font-medium">
+                        REST API (HTTP / WebSockets)
+                      </span>
+                      <div className="h-3 w-0.5 bg-slate-300" />
+                      <ArrowDown className="h-3.5 w-3.5 text-slate-500 -mt-1" />
+                    </div>
+
+                    {/* Layer 2: FastAPI Core Orchestrator */}
+                    <div className="rounded-xl border border-indigo-200 bg-white p-4 space-y-3 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-indigo-600 text-white font-bold text-[10px] px-2 py-0.5 uppercase tracking-wide">Tier 2</span>
+                          <span className="font-bold text-xs text-slate-900">FastAPI Autonomous Orchestrator</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Python 3.10+ (Uvicorn)</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
+                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Disambiguation Engine</span>
+                          <span className="text-[10px] text-indigo-600 font-mono block mb-1">POST /api/orchestrate/clarify</span>
+                          <p className="text-[11px] text-slate-600 leading-snug">Evaluates requirements, identifies ambiguities, and formulates 3 decision cards.</p>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Clean ABAP Synthesizer</span>
+                          <span className="text-[10px] text-indigo-600 font-mono block mb-1">POST /api/orchestrate/tight-loop</span>
+                          <p className="text-[11px] text-slate-600 leading-snug">Synthesizes .clas.abap, locals_imp.abap, and .clas.xml multi-file artifacts.</p>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                          <span className="font-semibold text-slate-900 block text-[11px]">Autonomous Self-Healing</span>
+                          <span className="text-[10px] text-indigo-600 font-mono block mb-1">Feedback Iteration Engine</span>
+                          <p className="text-[11px] text-slate-600 leading-snug">Auto-repairs compiler errors and unit test failures across up to 3 passes.</p>
+                        </div>
+                      </div>
+
+                      {/* Sub-components of Tier 2 */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                        <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-200 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-semibold text-slate-900 block text-[11px]">Git & abapGit Bridge</span>
+                            <span className="text-[10px] text-slate-500">Atomic commits, /src multi-file layout, CTS transport assignment</span>
+                          </div>
+                          <GitBranch className="h-4 w-4 text-indigo-600 shrink-0" />
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-200 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-semibold text-slate-900 block text-[11px]">SAP ADT REST Client</span>
+                            <span className="text-[10px] text-slate-500">CSRF token handling, in-memory /syntaxcheck, /abapunit, /activation</span>
+                          </div>
+                          <Server className="h-4 w-4 text-indigo-600 shrink-0" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Dual Connector 2 -> 3 */}
+                    <div className="grid grid-cols-2 gap-4 -my-1 text-slate-400">
+                      <div className="flex flex-col items-center">
+                        <div className="h-3 w-0.5 bg-slate-300" />
+                        <span className="bg-white px-2.5 py-0.5 text-[10px] font-mono text-slate-600 border border-slate-200 rounded-full shadow-2xs font-medium">
+                          Git Push (HTTPS/SSH)
+                        </span>
+                        <div className="h-3 w-0.5 bg-slate-300" />
+                        <ArrowDown className="h-3.5 w-3.5 text-slate-500 -mt-1" />
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="h-3 w-0.5 bg-slate-300" />
+                        <span className="bg-white px-2.5 py-0.5 text-[10px] font-mono text-slate-600 border border-slate-200 rounded-full shadow-2xs font-medium">
+                          ADT REST (/sap/bc/adt/*)
+                        </span>
+                        <div className="h-3 w-0.5 bg-slate-300" />
+                        <ArrowDown className="h-3.5 w-3.5 text-slate-500 -mt-1" />
+                      </div>
+                    </div>
+
+                    {/* Layer 3: Remote Repository & SAP Server */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Remote Git Target */}
+                      <div className="rounded-xl border border-blue-200 bg-white p-4 space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                            <GitCommit className="h-3.5 w-3.5 text-blue-600" />
+                            Remote Git Repository (GitHub / GitLab)
+                          </div>
+                          <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Version Control</span>
+                        </div>
+                        <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-200 font-mono text-[10px] space-y-0.5 text-slate-700">
+                          <div>/src/ZCL_ORDER_DISCOUNT.clas.abap</div>
+                          <div>/src/ZCL_ORDER_DISCOUNT.clas.locals_imp.abap</div>
+                          <div>/src/ZCL_ORDER_DISCOUNT.clas.xml</div>
+                          <div>/src/package.devc.xml</div>
+                        </div>
+                        <p className="text-[11px] text-slate-600">
+                          Full audit trail with SHA-1 commits, branch tracking, and abapGit sync pull trigger.
+                        </p>
+                      </div>
+
+                      {/* On-Premise SAP Server */}
+                      <div className="rounded-xl border border-emerald-200 bg-white p-4 space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                            <Server className="h-3.5 w-3.5 text-emerald-600" />
+                            On-Premise SAP DEV System
+                          </div>
+                          <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">NetWeaver 7.50+ / S/4HANA</span>
+                        </div>
+                        <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-200 font-mono text-[10px] space-y-0.5 text-slate-700">
+                          <div>/sap/bc/adt/syntaxcheck (In-Memory Compiler)</div>
+                          <div>/sap/bc/adt/abapunit/testruns (Kernel Test Runner)</div>
+                          <div>/sap/bc/adt/activation (DDIC Activation Gate)</div>
+                          <div>abapGit Pull (ZABAPGIT Package Sync)</div>
+                        </div>
+                        <p className="text-[11px] text-slate-600">
+                          Live kernel execution, Data Dictionary verification, and CTS Workbench Transport assignment.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2094,12 +2261,12 @@ export default function App() {
                 </section>
               )}
 
-              {/* SECTION 2: DUAL-CHANNEL EXECUTION MODEL (WITH DIAGRAM) */}
+              {/* SECTION 2: DUAL-CHANNEL EXECUTION MODEL */}
               {(guideSection === 'all' || guideSection === 'dual-channel') && (
                 <section id="guide-dual-channel" className="space-y-4">
                   <div className="border-b border-slate-200 pb-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-indigo-700 border border-indigo-200">
-                      <Workflow className="h-3 w-3" /> Section 2: Deployment Pipelines
+                      <Workflow className="h-3 w-3" /> Section 2: Deployment Pipelines & Flowchart
                     </span>
                     <h2 className="text-lg font-bold text-slate-900 mt-2">Dual-Channel Deployment Model: Git & abapGit vs Direct ADT</h2>
                     <p className="text-xs text-slate-500">
@@ -2107,10 +2274,8 @@ export default function App() {
                     </p>
                   </div>
 
-                  {/* Visual Diagram: Dual-Channel Architecture */}
+                  {/* Visual Stepper Nodes */}
                   <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-6">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Visual Flow Diagram: Dual-Channel Comparison</h3>
-                    
                     {/* Channel A Flow */}
                     <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
                       <div className="flex items-center justify-between">
@@ -2151,7 +2316,7 @@ export default function App() {
                     </div>
 
                     {/* Channel B Flow */}
-                    <div className="rounded-xl border border-slate-300 bg-white p-4 space-y-3">
+                    <div className="rounded-xl border border-slate-300 bg-white p-4 space-y-3 shadow-2xs">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="rounded bg-slate-700 text-white font-bold text-[10px] px-2 py-0.5 uppercase tracking-wide">Channel B</span>
@@ -2250,7 +2415,7 @@ export default function App() {
                 <section id="guide-how-it-works" className="space-y-4">
                   <div className="border-b border-slate-200 pb-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-emerald-700 border border-emerald-200">
-                      <RefreshCw className="h-3 w-3" /> Section 3: Execution Mechanism
+                      <RefreshCw className="h-3 w-3" /> Section 3: Execution Mechanism & Decision Flowchart
                     </span>
                     <h2 className="text-lg font-bold text-slate-900 mt-2">How It Works Under the Hood: The 6-Stage Autonomous Closed Loop</h2>
                     <p className="text-xs text-slate-500">
@@ -2341,7 +2506,7 @@ export default function App() {
                 <section id="guide-how-to-use" className="space-y-4">
                   <div className="border-b border-slate-200 pb-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-cyan-700 border border-cyan-200">
-                      <Terminal className="h-3 w-3" /> Section 4: Operator Manual
+                      <Terminal className="h-3 w-3" /> Section 4: Operator Manual & Process Workflow
                     </span>
                     <h2 className="text-lg font-bold text-slate-900 mt-2">How to Use the Studio: Step-by-Step Operator Guide</h2>
                     <p className="text-xs text-slate-500">
@@ -2426,7 +2591,7 @@ export default function App() {
                       <p className="text-xs text-slate-600">
                         Open SAP GUI and execute Transaction <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-blue-800">SICF</code>. Navigate down the path:
                       </p>
-                      <div className="rounded bg-slate-900 p-2.5 font-mono text-[11px] text-emerald-400">
+                      <div className="rounded bg-slate-900 p-2.5 font-mono text-[11px] text-slate-200">
                         /default_host/sap/bc/adt
                       </div>
                       <p className="text-xs text-slate-600">
