@@ -26,13 +26,61 @@ class SapAdtClient:
         self.language = config.get("language", os.getenv("SAP_LANGUAGE", "EN"))
         self.allow_self_signed = config.get("allow_self_signed", os.getenv("SAP_ALLOW_SELF_SIGNED", "true").lower() == "true")
         
+        self.uaa_url = config.get("uaa_url", os.getenv("SAP_UAA_URL", "")).rstrip("/")
+        self.client_id = config.get("client_id", os.getenv("SAP_CLIENT_ID", ""))
+        self.client_secret = config.get("client_secret", os.getenv("SAP_CLIENT_SECRET", ""))
+        self.bearer_token: Optional[str] = None
+        
         explicit_offline = os.getenv("SAP_OFFLINE_MODE", "false").lower() == "true"
-        self.offline_mode = explicit_offline or not self.password or self.password.strip() == ""
+        has_auth = bool(self.password and self.password.strip()) or bool(self.client_id and self.client_secret)
+        self.offline_mode = explicit_offline or not has_auth
 
         self.session = requests.Session()
-        self.session.auth = (self.user, self.password)
+        if self.password:
+            self.session.auth = (self.user, self.password)
         self.session.verify = not self.allow_self_signed if not self.allow_self_signed else False
         self.csrf_token: Optional[str] = None
+
+    def configure_service_key(self, key_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Configure client from an SAP BTP Service Key JSON object."""
+        if "url" in key_data:
+            self.url = key_data["url"].rstrip("/")
+        uaa = key_data.get("uaa", {})
+        if uaa:
+            self.uaa_url = uaa.get("url", "").rstrip("/")
+            self.client_id = uaa.get("clientid", "")
+            self.client_secret = uaa.get("clientsecret", "")
+        self.offline_mode = False
+        return self.fetch_oauth_token()
+
+    def fetch_oauth_token(self) -> Dict[str, Any]:
+        """Fetch OAuth2 Bearer token from SAP BTP XSUAA."""
+        if not (self.uaa_url and self.client_id and self.client_secret):
+            return {"success": False, "message": "Missing UAA URL, Client ID, or Client Secret."}
+        token_endpoint = f"{self.uaa_url}/oauth/token"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        data = {
+            "grant_type": "client_credentials",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret
+        }
+        try:
+            res = requests.post(token_endpoint, data=data, headers=headers, timeout=12)
+            if res.status_code == 200:
+                body = res.json()
+                self.bearer_token = body.get("access_token")
+                if self.bearer_token:
+                    self.session.headers["Authorization"] = f"Bearer {self.bearer_token}"
+                    self.session.auth = None
+                    self.offline_mode = False
+                    return {"success": True, "token_obtained": True, "message": "OAuth2 Bearer token obtained from SAP BTP."}
+            return {
+                "success": False,
+                "status_code": res.status_code,
+                "message": f"OAuth2 token request returned HTTP {res.status_code}: {res.text[:200]}"
+            }
+        except Exception as e:
+            return {"success": False, "message": f"OAuth2 connection error: {str(e)}"}
 
     def ping(self) -> Dict[str, Any]:
         """Test SAP connectivity and fetch CSRF token."""
@@ -46,12 +94,23 @@ class SapAdtClient:
                 "user": self.user or "DEMO_USER"
             }
 
+        if self.client_id and not self.bearer_token:
+            token_res = self.fetch_oauth_token()
+            if not token_res.get("success"):
+                return {
+                    "success": False,
+                    "mode": "live",
+                    "message": f"SAP BTP OAuth2 failed: {token_res.get('message')}"
+                }
+
         endpoint = f"{self.url}/sap/bc/adt/discovery"
         headers = {
             "x-csrf-token": "Fetch",
             "sap-client": self.client,
             "Accept-Language": self.language
         }
+        if self.bearer_token:
+            headers["Authorization"] = f"Bearer {self.bearer_token}"
         try:
             res = self.session.get(endpoint, headers=headers, timeout=10)
             if res.status_code in [200, 201]:
@@ -61,13 +120,20 @@ class SapAdtClient:
                     "mode": "live",
                     "status_code": res.status_code,
                     "csrf_token_obtained": bool(self.csrf_token),
-                    "message": "Connected to on-premise SAP DEV system via /sap/bc/adt/discovery"
+                    "message": "Connected to SAP system via /sap/bc/adt/discovery"
                 }
+            error_detail = res.text[:300]
+            if "<title>Logon failed</title>" in res.text or res.status_code == 401:
+                error_detail = "Logon failed. Invalid credentials, or Cloud Identity / Service Key required."
+            elif "<title>" in res.text:
+                title_match = re.search(r"<title>(.*?)</title>", res.text, re.IGNORECASE)
+                if title_match:
+                    error_detail = title_match.group(1).strip()
             return {
                 "success": False,
                 "mode": "live",
                 "status_code": res.status_code,
-                "message": f"SAP returned HTTP {res.status_code}: {res.text[:300]}"
+                "message": f"SAP returned HTTP {res.status_code}: {error_detail}"
             }
         except Exception as e:
             return {
@@ -499,6 +565,61 @@ class SapAdtClient:
             return {"success": False, "message": f"HTTP {res.status_code}: {res.text[:200]}"}
         except Exception as e:
             return {"success": False, "message": str(e)}
+
+    def get_class_source(self, class_name: str) -> Dict[str, Any]:
+        """Read ABAP class source code from SAP DEV via ADT."""
+        if self.offline_mode:
+            sample_class = (
+                f"CLASS {class_name.upper()} DEFINITION\n"
+                f"  PUBLIC\n"
+                f"  FINAL\n"
+                f"  CREATE PUBLIC .\n\n"
+                f"  PUBLIC SECTION.\n"
+                f"    METHODS calculate\n"
+                f"      IMPORTING\n"
+                f"        !iv_amount TYPE p\n"
+                f"      RETURNING\n"
+                f"        VALUE(rv_discount) TYPE p .\n"
+                f"  PROTECTED SECTION.\n"
+                f"  PRIVATE SECTION.\n"
+                f"ENDCLASS.\n\n"
+                f"CLASS {class_name.upper()} IMPLEMENTATION.\n"
+                f"  METHOD calculate.\n"
+                f"    rv_discount = COND #( WHEN iv_amount > 1000 THEN iv_amount * '0.10'\n"
+                f"                          ELSE 0 ).\n"
+                f"  ENDMETHOD.\n"
+                f"ENDCLASS.\n"
+            )
+            return {
+                "success": True,
+                "mode": "offline_simulation",
+                "class_name": class_name.upper(),
+                "source_code": sample_class,
+                "message": f"[SIMULATION] Retrieved existing source for class {class_name.upper()} from SAP DEV."
+            }
+
+        if not self.csrf_token:
+            self.ping()
+
+        endpoint = f"{self.url}/sap/bc/adt/oo/classes/{class_name.lower()}/source/main"
+        headers = {
+            "sap-client": self.client,
+            "Accept": "text/plain; charset=utf-8"
+        }
+        try:
+            res = self.session.get(endpoint, headers=headers, timeout=20)
+            if res.status_code == 200:
+                return {
+                    "success": True,
+                    "mode": "live",
+                    "class_name": class_name.upper(),
+                    "source_code": res.text,
+                    "message": f"Successfully retrieved existing source code for class {class_name.upper()}."
+                }
+            return {"success": False, "message": f"HTTP {res.status_code}: {res.text[:200]}"}
+        except Exception as e:
+            return {"success": False, "message": str(e)}
+
 
     def sync_object_to_sap(self, object_name: str, object_type: str, source_code: str,
                            test_code: str = "", repo_url: str = "", package: str = "$TMP") -> Dict[str, Any]:

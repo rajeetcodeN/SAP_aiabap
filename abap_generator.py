@@ -248,7 +248,8 @@ class AbapGenerator:
             f"{test_prompt}\n"
             "Generate the complete Clean ABAP 7.50+ class, comprehensive ABAP Unit tests covering all specified test scenarios with CL_AUNIT_ASSERT, and abapGit XML."
         )
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={self.gemini_key}"
+        model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={self.gemini_key}"
         headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [{"parts": [{"text": f"{CLEAN_ABAP_SYSTEM_PROMPT}\n\n{prompt}"}]}],

@@ -142,6 +142,7 @@ class SapConfigRequest(BaseModel):
     user: Optional[str] = None
     password: Optional[str] = None
     offline_mode: Optional[bool] = None
+    service_key: Optional[Dict[str, Any]] = None
 
 class GitConfigUpdateRequest(BaseModel):
     repo_url: str
@@ -282,6 +283,8 @@ def get_sap_config():
 @app.post("/api/sap/connect")
 def update_sap_connection(req: SapConfigRequest):
     """Updates and validates SAP connection credentials and mode."""
+    if req.service_key:
+        adt_client.configure_service_key(req.service_key)
     if req.url is not None:
         adt_client.url = req.url.rstrip("/")
     if req.client is not None:
@@ -293,7 +296,7 @@ def update_sap_connection(req: SapConfigRequest):
         adt_client.session.auth = (adt_client.user, adt_client.password)
     if req.offline_mode is not None:
         adt_client.offline_mode = req.offline_mode
-    elif not adt_client.password:
+    elif not adt_client.password and not adt_client.client_id:
         adt_client.offline_mode = True
 
     ping_res = adt_client.ping()
@@ -386,7 +389,12 @@ def abapgit_pull(req: AbapGitPullRequest):
     """Trigger abapGit pull from GitHub into SAP DEV."""
     return adt_client.trigger_abapgit_pull(req.repo_url, req.package)
 
-# --- Classical SE38 Programs --- #
+# --- Classical SE38 Programs & Classes --- #
+
+@app.get("/api/class/{class_name}")
+def get_class_source(class_name: str):
+    """Retrieve ABAP class source code from SAP DEV via ADT."""
+    return adt_client.get_class_source(class_name)
 
 @app.get("/api/program/{program_name}")
 def get_program_source(program_name: str):
@@ -552,5 +560,6 @@ else:
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    is_dev = os.getenv("DEV_MODE", "false").lower() == "true"
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=is_dev)
 

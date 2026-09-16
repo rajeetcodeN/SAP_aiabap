@@ -74,7 +74,7 @@ export default function App() {
   // SAP Form Parameters
   const [requirement, setRequirement] = useState('Create a discount calculator class ZCL_ORDER_DISCOUNT that applies a 10% discount if order amount is over 1000, otherwise 0.');
   const [className, setClassName] = useState('ZCL_ORDER_DISCOUNT');
-  const [packageName, setPackageName] = useState('$TMP');
+  const [packageName, setPackageName] = useState('Z_DEV_TRIAL');
   const [tables, setTables] = useState('VBAK, VBAP');
 
   // Generated Artifacts
@@ -91,10 +91,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
-  // Connections Page State
-  const [sapUrl, setSapUrl] = useState('http://localhost:8000');
+  // Connections Page State (Configured for SAP BTP ABAP Cloud Trial)
+  const [sapUrl, setSapUrl] = useState('https://a4796127-12c7-4a21-ae82-e3ced4ab9c3d.abap.us10.hana.ondemand.com');
   const [sapClient, setSapClient] = useState('100');
-  const [sapUser, setSapUser] = useState('DEVELOPER');
+  const [sapUser, setSapUser] = useState('CB9980001106');
   const [sapPassword, setSapPassword] = useState('');
   const [sapOfflineMode, setSapOfflineMode] = useState(false);
   const [sapPingResult, setSapPingResult] = useState<any>(null);
@@ -559,13 +559,30 @@ export default function App() {
         const res = await fetch(`/api/program/${className.trim()}`);
         const data = await res.json();
         if (data.source_code) {
+          setPreviousClassCode(classCode);
           setClassCode(data.source_code);
-          setActionNotice(data.message || `Loaded SE38 report ${className.toUpperCase()}`);
+          setActionNotice(data.message || `Loaded SE38 report ${className.toUpperCase()} from SAP DEV.`);
+          setChatMessages(prev => [
+            ...prev,
+            { role: 'assistant', content: `Retrieved existing SE38 report ${className.toUpperCase()} source from SAP DEV. You can now inspect it or instruct modifications via conversational refinement.` }
+          ]);
         } else {
           setActionNotice(data.message || 'Report not found in SAP DEV.');
         }
       } else {
-        setActionNotice(`Class ${className.toUpperCase()} ready in buffer.`);
+        const res = await fetch(`/api/class/${className.trim()}`);
+        const data = await res.json();
+        if (data.source_code) {
+          setPreviousClassCode(classCode);
+          setClassCode(data.source_code);
+          setActionNotice(data.message || `Loaded existing class ${className.toUpperCase()} from SAP DEV.`);
+          setChatMessages(prev => [
+            ...prev,
+            { role: 'assistant', content: `Retrieved existing class ${className.toUpperCase()} source from SAP DEV. You can now inspect the code in the editor, compare diffs, or instruct refinements.` }
+          ]);
+        } else {
+          setActionNotice(data.message || `Class ${className.toUpperCase()} not found in SAP DEV.`);
+        }
       }
     } catch {
       setActionNotice('Failed to pull object from SAP.');
@@ -1462,14 +1479,32 @@ export default function App() {
 
                 {/* Toast Notification Banner */}
                 {actionNotice && (
-                  <div className="rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs text-blue-900 flex items-center justify-between shrink-0 shadow-2xs">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                  <div className={`rounded-lg px-3 py-1.5 text-xs flex items-center justify-between shrink-0 shadow-2xs ${
+                    actionNotice.includes('401') || actionNotice.toLowerCase().includes('logon failed')
+                      ? 'bg-amber-50 border border-amber-200 text-amber-900'
+                      : 'bg-blue-50 border border-blue-200 text-blue-900'
+                  }`}>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <AlertCircle className={`h-3.5 w-3.5 shrink-0 ${
+                        actionNotice.includes('401') || actionNotice.toLowerCase().includes('logon failed')
+                          ? 'text-amber-600'
+                          : 'text-blue-600'
+                      }`} />
                       <span>{actionNotice}</span>
+                      {(actionNotice.includes('401') || actionNotice.toLowerCase().includes('logon failed')) && (
+                        <button
+                          type="button"
+                          onClick={() => window.open(`${sapUrl}/sap/bc/adt/discovery`, '_blank')}
+                          className="inline-flex items-center gap-1 rounded bg-amber-200 hover:bg-amber-300 text-amber-900 px-2 py-0.5 text-[11px] font-semibold transition ml-2 cursor-pointer"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span>Open SAP Logon Page</span>
+                        </button>
+                      )}
                     </div>
                     <button 
                       onClick={() => setActionNotice(null)} 
-                      className="text-slate-400 hover:text-slate-700 font-bold ml-2 text-xs"
+                      className="text-slate-400 hover:text-slate-700 font-bold ml-2 text-xs cursor-pointer"
                     >
                       &times;
                     </button>
@@ -1663,21 +1698,43 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="flex gap-2 pt-2 border-t border-slate-200">
-                  <button
-                    onClick={handleTestSapPing}
-                    disabled={loading}
-                    className="flex-1 rounded-md border border-slate-300 bg-white py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
-                  >
-                    Test ADT Ping
-                  </button>
-                  <button
-                    onClick={handleSaveSapConfig}
-                    disabled={loading}
-                    className="flex-1 rounded-md bg-blue-600 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
-                  >
-                    Save SAP Config
-                  </button>
+                <div className="space-y-2 pt-2 border-t border-slate-200">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleTestSapPing}
+                      disabled={loading}
+                      className="flex-1 rounded-md border border-slate-300 bg-white py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                    >
+                      Test ADT Ping
+                    </button>
+                    <button
+                      onClick={handleSaveSapConfig}
+                      disabled={loading}
+                      className="flex-1 rounded-md bg-blue-600 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition cursor-pointer"
+                    >
+                      Save SAP Config
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => window.open(`${sapUrl}/sap/bc/adt/discovery`, '_blank')}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-slate-100 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition cursor-pointer"
+                      title="Open SAP BTP Discovery / Logon endpoint in a new browser tab"
+                    >
+                      <ExternalLink className="h-3 w-3 text-slate-500" />
+                      <span>Logon in Browser</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => window.open('https://cockpit.hanatrial.ondemand.com', '_blank')}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-slate-100 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition cursor-pointer"
+                      title="Open SAP BTP Trial Cockpit"
+                    >
+                      <ExternalLink className="h-3 w-3 text-slate-500" />
+                      <span>BTP Cockpit</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
