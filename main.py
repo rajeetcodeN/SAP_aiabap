@@ -95,6 +95,7 @@ class GitPushRequest(BaseModel):
     files: list = []
     target_repo_url: str = ""
     target_branch: str = "main"
+    git_token: str = ""
 
 class RefineRequest(BaseModel):
     prompt: str
@@ -134,6 +135,7 @@ class TightLoopRequest(BaseModel):
     clarification_answers: Dict[str, str] = {}
     target_repo_url: str = ""
     target_branch: str = "main"
+    git_token: str = ""
     max_retries: int = 3
 
 class SapConfigRequest(BaseModel):
@@ -325,13 +327,11 @@ def get_git_config():
 @app.post("/api/git/config")
 def update_git_config(req: GitConfigUpdateRequest):
     """Updates target Git remote repository URL and branch."""
-    clean_url = req.repo_url.strip()
-    if "rajeetcodeN" in clean_url:
-        clean_url = clean_url.replace("rajeetcodeN", "organization")
-    if clean_url and "organization" not in clean_url:
+    raw_url = req.repo_url.strip()
+    if raw_url:
         import subprocess
-        subprocess.run(["git", "remote", "set-url", "origin", clean_url], cwd=git_sync.repo_root, capture_output=True, text=True)
-    return {"success": True, "repo_url": clean_url, "branch": req.branch}
+        subprocess.run(["git", "remote", "set-url", "origin", raw_url], cwd=git_sync.repo_root, capture_output=True, text=True)
+    return {"success": True, "repo_url": raw_url, "branch": req.branch}
 
 @app.post("/api/git-push")
 def push_to_git(req: GitPushRequest):
@@ -351,7 +351,8 @@ def push_to_git(req: GitPushRequest):
     push_res = git_sync.commit_and_push(
         class_name=req.class_name,
         target_repo_url=req.target_repo_url,
-        target_branch=req.target_branch
+        target_branch=req.target_branch,
+        git_token=req.git_token
     )
     return push_res
 
@@ -457,7 +458,8 @@ def execute_tight_loop(req: TightLoopRequest):
             class_name=req.class_name,
             commit_message=f"feat(abap): tight-loop iteration {iteration} for {req.class_name.upper()}",
             target_repo_url=req.target_repo_url,
-            target_branch=req.target_branch
+            target_branch=req.target_branch,
+            git_token=req.git_token
         )
         step_log["git"] = {"write": git_write, "push": git_push}
 

@@ -47,3 +47,4 @@ frontend/package-lock.json
 Thumbs.db
 .vscode/
 .idea/
+.abap_sync_repo/

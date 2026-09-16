@@ -100,8 +100,9 @@ export default function App() {
   const [sapPingResult, setSapPingResult] = useState<any>(null);
 
   // Git Repository & Branch State
-  const [targetRepoUrl, setTargetRepoUrl] = useState('https://github.com/organization/abap_ai.git');
-  const [targetBranch, setTargetBranch] = useState('main');
+  const [targetRepoUrl, setTargetRepoUrl] = useState(() => localStorage.getItem('abap_git_repo_url') || 'https://github.com/organization/abap_ai.git');
+  const [targetBranch, setTargetBranch] = useState(() => localStorage.getItem('abap_git_branch') || 'main');
+  const [gitToken, setGitToken] = useState(() => localStorage.getItem('abap_git_token') || '');
 
   // Conversational Chat
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -174,14 +175,21 @@ export default function App() {
 
   const fetchGitConfig = async () => {
     try {
+      const savedRepo = localStorage.getItem('abap_git_repo_url');
+      const savedBranch = localStorage.getItem('abap_git_branch');
+      const savedToken = localStorage.getItem('abap_git_token');
+      if (savedRepo) setTargetRepoUrl(savedRepo);
+      if (savedBranch) setTargetBranch(savedBranch);
+      if (savedToken) setGitToken(savedToken);
+
       const res = await fetch('/api/git/config');
       if (res.ok) {
         const data = await res.json();
-        if (data.repo_url) {
+        if (!savedRepo && data.repo_url) {
           const sanitized = data.repo_url.replace(/rajeetcodeN/g, 'organization');
           setTargetRepoUrl(sanitized);
         }
-        if (data.branch) setTargetBranch(data.branch);
+        if (!savedBranch && data.branch) setTargetBranch(data.branch);
       }
     } catch {
       // Retain default configuration
@@ -331,6 +339,10 @@ export default function App() {
   const handleSaveGitConfig = async () => {
     setLoading(true);
     try {
+      localStorage.setItem('abap_git_repo_url', targetRepoUrl);
+      localStorage.setItem('abap_git_branch', targetBranch);
+      localStorage.setItem('abap_git_token', gitToken);
+
       const res = await fetch('/api/git/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -341,7 +353,6 @@ export default function App() {
       });
       const data = await res.json();
       setActionNotice(`Git configuration saved: ${data.repo_url} [${data.branch}]`);
-      fetchGitConfig();
     } catch {
       setActionNotice('Failed to save Git configuration.');
     } finally {
@@ -513,6 +524,7 @@ export default function App() {
           clarification_answers: clarificationAnswers,
           target_repo_url: targetRepoUrl,
           target_branch: targetBranch,
+          git_token: gitToken,
           max_retries: 3
         })
       });
@@ -759,7 +771,8 @@ export default function App() {
           test_code: testCode,
           xml_code: xmlCode,
           target_repo_url: targetRepoUrl,
-          target_branch: targetBranch
+          target_branch: targetBranch,
+          git_token: gitToken
         })
       });
       const data = await res.json();
@@ -1410,7 +1423,9 @@ export default function App() {
                     <div className="flex items-center gap-1">
                       <span className="text-[10px] font-bold text-slate-500 uppercase">ATC:</span>
                       <span className="rounded bg-white border border-slate-200 px-1.5 py-0.2 text-[10px] font-mono text-slate-700">
-                        {atcResult ? `${atcResult.errors}E / ${atcResult.warnings}W / ${atcResult.infos}I` : 'Pending'}
+                        {atcResult && typeof atcResult.errors === 'number'
+                          ? `${atcResult.errors}E / ${atcResult.warnings ?? 0}W / ${atcResult.infos ?? 0}I`
+                          : 'Pending'}
                       </span>
                     </div>
 
@@ -1772,6 +1787,18 @@ export default function App() {
                       placeholder="main"
                       className="mt-0.5 w-full rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-mono text-slate-800 focus:border-blue-600 focus:outline-none"
                     />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block">Personal Access Token (PAT):</label>
+                    <input
+                      type="password"
+                      value={gitToken}
+                      onChange={(e) => setGitToken(e.target.value)}
+                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                      className="mt-0.5 w-full rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-mono text-slate-800 focus:border-blue-600 focus:outline-none"
+                    />
+                    <p className="mt-1 text-[10px] text-slate-500">Stored safely in your browser profile. Allows pushing directly to your personal or organization repository.</p>
                   </div>
 
                   <div className="rounded border border-slate-200 bg-white p-2.5 text-xs space-y-1">
