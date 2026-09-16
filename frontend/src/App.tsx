@@ -5,7 +5,9 @@ import {
   Terminal, BookOpen, Layers, Send, Mic, Server, Code2,
   Moon, Sun, Copy, Check, ChevronDown, ChevronUp, ArrowUp,
   ShieldCheck, GitCommit, FileCode, CheckCircle, XCircle,
-  Link2, Database, Key, Globe, Radio, Sparkles, ExternalLink
+  Link2, Database, Key, Globe, Radio, Sparkles, ExternalLink,
+  ArrowRight, Workflow, Cpu, Lock, FileText, CheckCheck, HelpCircle,
+  Info, Sliders, Eye
 } from 'lucide-react';
 
 interface SyntaxMessage {
@@ -61,6 +63,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'workbench' | 'connections' | 'inspector' | 'guide'>('workbench');
   const [codeTab, setCodeTab] = useState<'class' | 'test' | 'xml' | 'diff'>('class');
   const [editorTheme, setEditorTheme] = useState<'vs-light' | 'vs-dark'>('vs-light');
+  
+  // Architecture Guide Active Section
+  const [guideSection, setGuideSection] = useState<'all' | 'overview' | 'dual-channel' | 'how-it-works' | 'how-to-use' | 'connectivity' | 'abapgit-cts' | 'clean-abap'>('all');
   
   // UI collapse state
   const [showTestScenarios, setShowTestScenarios] = useState(false);
@@ -1254,13 +1259,13 @@ export default function App() {
 
               {/* Right Column: Code Studio & Operations */}
               <div className="col-span-7 flex flex-col rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden p-3 gap-2">
-                {/* Unified Code Tabs & Action Toolbar (Single Clean Header) */}
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2 shrink-0">
+                {/* Row 1: Code Tabs (Left) & Quality Check Actions (Right) */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2 shrink-0">
                   {/* Left: Code Tabs */}
-                  <div className="flex gap-1 text-xs">
+                  <div className="flex items-center gap-1 text-xs">
                     <button
                       onClick={() => setCodeTab('class')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition cursor-pointer ${
                         codeTab === 'class' 
                           ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' 
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -1271,7 +1276,7 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCodeTab('test')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition cursor-pointer ${
                         codeTab === 'test' 
                           ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' 
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -1282,7 +1287,7 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCodeTab('xml')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition cursor-pointer ${
                         codeTab === 'xml' 
                           ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' 
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -1293,7 +1298,7 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCodeTab('diff')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition ${
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono transition cursor-pointer ${
                         codeTab === 'diff' 
                           ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' 
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -1304,13 +1309,12 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Right: Clean Grouped Actions */}
+                  {/* Right: Validation Actions & Copy */}
                   <div className="flex items-center gap-1.5">
-                    {/* Validation Quick Buttons */}
                     <button
                       onClick={handleCheckSyntax}
                       disabled={loading || !classCode}
-                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition cursor-pointer"
                       title="Run In-Memory Syntax Check"
                     >
                       <CheckCircle className="h-3 w-3 text-emerald-600" />
@@ -1319,7 +1323,7 @@ export default function App() {
                     <button
                       onClick={handleRunTests}
                       disabled={loading || !classCode}
-                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition cursor-pointer"
                       title="Execute ABAP Unit Test Suite"
                     >
                       <Play className="h-3 w-3 text-blue-600" />
@@ -1328,46 +1332,15 @@ export default function App() {
                     <button
                       onClick={runAtcCheck}
                       disabled={loading || !classCode}
-                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition cursor-pointer"
                       title="Run ABAP Test Cockpit (ATC)"
                     >
                       <ShieldCheck className="h-3 w-3 text-indigo-600" />
                       ATC
                     </button>
-
-                    <div className="h-4 w-px bg-slate-200 mx-0.5" />
-
-                    {/* Deployment Actions */}
-                    <button
-                      onClick={handleActivate}
-                      disabled={loading || !classCode}
-                      className="flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-emerald-700 disabled:opacity-50 transition"
-                      title="Activate in SAP DEV (Requires developer review)"
-                    >
-                      <Server className="h-3 w-3" />
-                      Activate
-                    </button>
-                    <button
-                      onClick={handlePushToGit}
-                      disabled={loading || !classCode}
-                      className="flex items-center gap-1 rounded-md bg-slate-800 px-2.5 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-slate-900 disabled:opacity-50 transition"
-                      title={`Commit & Push to ${targetBranch || 'main'}`}
-                    >
-                      <GitBranch className="h-3 w-3" />
-                      Push Git
-                    </button>
-                    <button
-                      onClick={writeToSap}
-                      disabled={loading || !classCode}
-                      className="flex items-center gap-1 rounded-md border border-purple-300 bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 hover:bg-purple-100 disabled:opacity-50 transition"
-                      title="Direct ADT Write into SAP memory buffer"
-                    >
-                      <Server className="h-3 w-3" />
-                      Direct ADT
-                    </button>
                     <button
                       onClick={handleCopyCode}
-                      className="flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-600 hover:bg-slate-100 transition ml-0.5"
+                      className="flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 hover:bg-slate-100 transition cursor-pointer"
                       title="Copy code to clipboard"
                     >
                       {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
@@ -1376,9 +1349,10 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Sleek Inline Telemetry Strip (De-clustered Ribbon) */}
-                <div className="flex items-center justify-between gap-1.5 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs shrink-0">
-                  <div className="flex items-center gap-3">
+                {/* Row 2: Telemetry Badges (Left) & Deployment Actions (Right) */}
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs shrink-0">
+                  {/* Left: Telemetry Status Badges */}
+                  <div className="flex flex-wrap items-center gap-2.5">
                     {/* Compiler Syntax */}
                     <div className="flex items-center gap-1">
                       <span className="text-[10px] font-bold text-slate-500 uppercase">Syntax:</span>
@@ -1395,7 +1369,7 @@ export default function App() {
                       )}
                     </div>
 
-                    <div className="h-3 w-px bg-slate-300" />
+                    <div className="h-3 w-px bg-slate-300 hidden sm:block" />
 
                     {/* Unit Tests */}
                     <div className="flex items-center gap-1">
@@ -1413,7 +1387,7 @@ export default function App() {
                       )}
                     </div>
 
-                    <div className="h-3 w-px bg-slate-300" />
+                    <div className="h-3 w-px bg-slate-300 hidden sm:block" />
 
                     {/* ATC Static Analysis */}
                     <div className="flex items-center gap-1">
@@ -1423,7 +1397,7 @@ export default function App() {
                       </span>
                     </div>
 
-                    <div className="h-3 w-px bg-slate-300" />
+                    <div className="h-3 w-px bg-slate-300 hidden sm:block" />
 
                     {/* SAP State */}
                     <div className="flex items-center gap-1">
@@ -1437,7 +1411,7 @@ export default function App() {
                       </span>
                     </div>
 
-                    <div className="h-3 w-px bg-slate-300" />
+                    <div className="h-3 w-px bg-slate-300 hidden sm:block" />
 
                     {/* Package */}
                     <div className="flex items-center gap-1">
@@ -1446,13 +1420,44 @@ export default function App() {
                         {packageName}
                       </span>
                     </div>
+
+                    {tightLoopAudit.length > 0 && (
+                      <span className="rounded bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                        Tight Loop: {tightLoopAudit.length} Verified
+                      </span>
+                    )}
                   </div>
 
-                  {tightLoopAudit.length > 0 && (
-                    <span className="rounded bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                      Tight Loop: {tightLoopAudit.length} Verified
-                    </span>
-                  )}
+                  {/* Right: Deployment Action Buttons */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={handleActivate}
+                      disabled={loading || !classCode}
+                      className="flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
+                      title="Activate in SAP DEV (Requires developer review)"
+                    >
+                      <Server className="h-3 w-3" />
+                      Activate in SAP
+                    </button>
+                    <button
+                      onClick={handlePushToGit}
+                      disabled={loading || !classCode}
+                      className="flex items-center gap-1 rounded-md bg-slate-800 px-2.5 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-slate-900 disabled:opacity-50 transition cursor-pointer"
+                      title={`Commit & Push to ${targetBranch || 'main'}`}
+                    >
+                      <GitBranch className="h-3 w-3" />
+                      Push Git
+                    </button>
+                    <button
+                      onClick={writeToSap}
+                      disabled={loading || !classCode}
+                      className="flex items-center gap-1 rounded-md border border-purple-300 bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 hover:bg-purple-100 disabled:opacity-50 transition cursor-pointer"
+                      title="Direct ADT Write into SAP memory buffer"
+                    >
+                      <Server className="h-3 w-3" />
+                      Direct ADT
+                    </button>
+                  </div>
                 </div>
 
                 {/* Toast Notification Banner */}
@@ -1963,56 +1968,720 @@ export default function App() {
         )}
 
         {/* ========================================================= */}
+        {/* ========================================================= */}
         {/* ARCHITECTURE GUIDE TAB */}
         {/* ========================================================= */}
         {activeTab === 'guide' && (
-          <div className="h-full rounded-xl border border-slate-200 bg-white p-6 shadow-xs overflow-y-auto">
-            <h1 className="text-lg font-bold text-slate-900">System Architecture & Operations Guide</h1>
-            <p className="text-xs text-slate-500 mb-6">Complete manual for autonomous ABAP development, SAP ADT endpoints, and abapGit synchronization.</p>
-
-            <div className="grid grid-cols-2 gap-4 text-xs text-slate-700 leading-relaxed">
-              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-800">1. Automated Closed-Loop Lifecycle</h3>
-                <ol className="list-decimal pl-4 space-y-1.5 text-slate-700">
-                  <li><strong>Intake:</strong> Business requester dictates voice requirements or enters functional parameters.</li>
-                  <li><strong>Technical Scope:</strong> SAP specialist designates Object Type, Package ($TMP/ZDEV), and tables.</li>
-                  <li><strong>AI Generation:</strong> Clean ABAP 7.50+ class, test suite, and abapGit XML metadata synthesized.</li>
-                  <li><strong>In-Memory Compilation:</strong> ADT validates code buffer on /sap/bc/adt/syntaxcheck.</li>
-                  <li><strong>Unit Testing:</strong> ABAP Unit test runs execute on /sap/bc/adt/abapunit/testruns.</li>
-                  <li><strong>Activation Gate:</strong> Developer explicitly reviews and confirms activation.</li>
-                  <li><strong>abapGit Sync:</strong> Atomic commit pushed to Git target branch for automated pull.</li>
-                </ol>
+          <div className="h-full flex flex-col rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+            {/* Guide Header & Navigation Filter */}
+            <div className="p-4 border-b border-slate-200 bg-slate-50/70 shrink-0">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    <h1 className="text-base font-bold text-slate-900">System Architecture & Operations Guide</h1>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Technical manual, execution diagrams, SAP ADT connection specifications, and abapGit serialization protocols.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 text-[11px]">
+                  <span className="px-2 py-0.5 font-medium text-slate-400">Filter:</span>
+                  {[
+                    { id: 'all', label: 'All Sections' },
+                    { id: 'overview', label: '1. Overview' },
+                    { id: 'dual-channel', label: '2. Dual-Channel Model' },
+                    { id: 'how-it-works', label: '3. How It Works (Loop)' },
+                    { id: 'how-to-use', label: '4. How to Use' },
+                    { id: 'connectivity', label: '5. SAP Connectivity' },
+                    { id: 'abapgit-cts', label: '6. abapGit & CTS' },
+                    { id: 'clean-abap', label: '7. Clean ABAP & Safety' },
+                  ].map((sec) => (
+                    <button
+                      key={sec.id}
+                      onClick={() => setGuideSection(sec.id as any)}
+                      className={`px-2.5 py-1 rounded font-medium transition ${
+                        guideSection === sec.id
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      {sec.label}
+                    </button>
+                  ))}
+                </div>
               </div>
+            </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-800">2. Connecting to On-Premise SAP DEV</h3>
-                <p className="text-slate-600">Standard SAP GUI prerequisites without custom transports:</p>
-                <ul className="list-disc pl-4 space-y-1.5 text-slate-700">
-                  <li><strong>Transaction SICF:</strong> Ensure path <code>/default_host/sap/bc/adt</code> is Active.</li>
-                  <li><strong>Transaction SU01:</strong> User needs authorization <code>S_DEVELOP</code> (ACTVT: 01, 02, 03).</li>
-                  <li><strong>Environment Configuration:</strong> Set SAP_URL, SAP_CLIENT, and SAP_USER in <code>.env</code> or via the Connections tab.</li>
-                  <li><strong>Offline Simulation:</strong> Toggle Offline Simulation in the Connections tab to build and test disconnected.</li>
-                </ul>
-              </div>
+            {/* Guide Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-12 scroll-smooth text-slate-700">
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-800">3. Safety Governance Matrix</h3>
-                <ul className="space-y-1.5 text-slate-700">
-                  <li><strong>CAN DO:</strong> Generate Clean ABAP 7.50+, run in-memory syntax checks, execute unit test suites, activate inactive objects upon human confirmation, push abapGit file structures.</li>
-                  <li><strong>CANNOT DO:</strong> Cannot deploy directly to QA or PROD; cannot execute raw OS commands on SAP server.</li>
-                </ul>
-              </div>
+              {/* SECTION 1: SYSTEM OVERVIEW & ARCHITECTURE PHILOSOPHY */}
+              {(guideSection === 'all' || guideSection === 'overview') && (
+                <section id="guide-overview" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-blue-700 border border-blue-200">
+                      <Cpu className="h-3 w-3" /> Section 1: Platform Fundamentals
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">System Philosophy & Architecture Overview</h2>
+                    <p className="text-xs text-slate-500">
+                      Autonomous ABAP software engineering without manual copy-pasting or obsolete legacy syntax.
+                    </p>
+                  </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-800">4. Clean ABAP Standards</h3>
-                <ul className="space-y-1.5 text-slate-700">
-                  <li><strong>Inline Declarations:</strong> <code>DATA(result) = calculate( ).</code></li>
-                  <li><strong>Constructor Expressions:</strong> <code>VALUE #()</code>, <code>COND #()</code>, <code>SWITCH #()</code></li>
-                  <li><strong>String Templates:</strong> <code>|Amount: &#123; amount &#125;|</code> instead of CONCATENATE.</li>
-                  <li><strong>Table Expressions:</strong> <code>items[ vbeln = id ]</code> instead of READ TABLE.</li>
-                  <li><strong>Fail Fast:</strong> Custom exception classes instead of sy-subrc integers.</li>
-                </ul>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-2">
+                      <div className="flex items-center gap-2 text-rose-700 font-semibold text-xs">
+                        <AlertCircle className="h-4 w-4" />
+                        The Obsolete Syntax Trap
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        Public LLMs default to procedural ABAP constructs from the 1990s (FORM routines, header lines, non-Unicode syntax). This studio enforces strict modern Clean ABAP 7.50+ patterns (expressions, inline data, OOP).
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-2">
+                      <div className="flex items-center gap-2 text-amber-700 font-semibold text-xs">
+                        <Database className="h-4 w-4" />
+                        The Hallucinated DDIC Barrier
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        Disconnected chatbots invent non-existent table joins and invalid fields. This studio integrates directly with live SAP Data Dictionary in memory to validate structures before committing code.
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-2">
+                      <div className="flex items-center gap-2 text-blue-700 font-semibold text-xs">
+                        <GitBranch className="h-4 w-4" />
+                        The Copy-Paste & Audit Breach
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        Copying code into SAP GUI SE24/SE38 loses version history, skips automated unit testing, and bypasses pull requests. This studio serializes code into standard abapGit multi-file repositories for auditability.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 4 Architectural Pillars */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Core Architectural Components</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                        <span className="font-semibold text-slate-900 block mb-1">FastAPI Orchestrator</span>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                          Python backend managing prompt composition, state persistence, ADT REST endpoints, and the self-healing iteration engine.
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                        <span className="font-semibold text-slate-900 block mb-1">React Studio Workbench</span>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                          Tailwind-powered developer UI featuring Monaco ABAP editors, dual-tier command toolbar, interactive diffs, and speech dictation.
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                        <span className="font-semibold text-slate-900 block mb-1">SAP ADT REST Client</span>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                          Authenticated HTTP/HTTPS client handling SAP CSRF tokens, session cookies, and ADT XML payloads for syntax check, tests, and activation.
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                        <span className="font-semibold text-slate-900 block mb-1">abapGit & CTS Bridge</span>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                          Serializes classes into multi-file Git structures (.clas.abap, .locals_imp.abap, .clas.xml) with atomic commits and CTS Workbench Transport tracking.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* SECTION 2: DUAL-CHANNEL EXECUTION MODEL (WITH DIAGRAM) */}
+              {(guideSection === 'all' || guideSection === 'dual-channel') && (
+                <section id="guide-dual-channel" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-indigo-700 border border-indigo-200">
+                      <Workflow className="h-3 w-3" /> Section 2: Deployment Pipelines
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">Dual-Channel Deployment Model: Git & abapGit vs Direct ADT</h2>
+                    <p className="text-xs text-slate-500">
+                      Visual comparison and architectural breakdown between repository-first version control and direct buffer prototyping.
+                    </p>
+                  </div>
+
+                  {/* Visual Diagram: Dual-Channel Architecture */}
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-6">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Visual Flow Diagram: Dual-Channel Comparison</h3>
+                    
+                    {/* Channel A Flow */}
+                    <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-blue-600 text-white font-bold text-[10px] px-2 py-0.5 uppercase tracking-wide">Channel A</span>
+                          <span className="font-bold text-xs text-blue-900">Git & abapGit Repository Channel (Recommended DevOps Flow)</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-blue-200">Audited / Production CI/CD</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 pt-2">
+                        {[
+                          { step: '1', title: 'AI Synthesis', desc: 'Synthesizes Clean ABAP & ABAP Unit tests' },
+                          { step: '2', title: 'Serialization', desc: '.clas.abap, locals_imp, and .clas.xml written to /src' },
+                          { step: '3', title: 'Git Commit & Push', desc: 'Atomic commit pushed to GitHub/GitLab remote branch' },
+                          { step: '4', title: 'abapGit Pull', desc: 'Pulls remote branch directly into target SAP package' },
+                          { step: '5', title: 'Human Gate', desc: 'Developer reviews diff and approves activation' },
+                          { step: '6', title: 'CTS Release', desc: 'Changes captured in Workbench Transport Request' },
+                        ].map((node, i) => (
+                          <div key={i} className="relative rounded-lg border border-blue-200 bg-white p-2.5 text-center shadow-2xs">
+                            <span className="inline-block rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold h-5 w-5 leading-5 mb-1">
+                              {node.step}
+                            </span>
+                            <div className="font-bold text-[11px] text-slate-900">{node.title}</div>
+                            <div className="text-[10px] text-slate-500 mt-1 leading-tight">{node.desc}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="text-[11px] text-blue-900 bg-white/80 rounded-lg p-3 border border-blue-100 space-y-1">
+                        <span className="font-semibold block">Key Characteristics:</span>
+                        <ul className="list-disc pl-4 space-y-0.5 text-slate-700">
+                          <li>Total auditability: Every change tracked via immutable Git commits with author signatures.</li>
+                          <li>Branching & Pull Requests: Enables collaborative review and conflict resolution before merging.</li>
+                          <li>abapGit Standard: Objects conform to open-source abapGit serialization schema.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Channel B Flow */}
+                    <div className="rounded-xl border border-slate-300 bg-white p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-slate-700 text-white font-bold text-[10px] px-2 py-0.5 uppercase tracking-wide">Channel B</span>
+                          <span className="font-bold text-xs text-slate-900">Direct ADT REST Channel (Rapid Prototyping Flow)</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Scratchpad / Sandbox Iteration</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 pt-2">
+                        {[
+                          { step: '1', title: 'AI Synthesis', desc: 'Synthesizes single-buffer class implementation' },
+                          { step: '2', title: 'Lock Object', desc: 'Acquires developer lock on class in SAP' },
+                          { step: '3', title: 'PUT Source', desc: 'Writes buffer to /oo/classes/.../source/main' },
+                          { step: '4', title: 'In-Memory Check', desc: 'Validates syntax against live compiler' },
+                          { step: '5', title: 'Human Gate', desc: 'Developer verifies tests and gives confirmation' },
+                          { step: '6', title: 'DDIC Activate', desc: 'Transitions object from Inactive to Active' },
+                        ].map((node, i) => (
+                          <div key={i} className="relative rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-center shadow-2xs">
+                            <span className="inline-block rounded-full bg-slate-200 text-slate-800 text-[10px] font-bold h-5 w-5 leading-5 mb-1">
+                              {node.step}
+                            </span>
+                            <div className="font-bold text-[11px] text-slate-900">{node.title}</div>
+                            <div className="text-[10px] text-slate-500 mt-1 leading-tight">{node.desc}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="text-[11px] text-slate-800 bg-slate-50 rounded-lg p-3 border border-slate-200 space-y-1">
+                        <span className="font-semibold block">Key Characteristics:</span>
+                        <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                          <li>Instant turnaround: Writes directly into SAP inactive runtime buffer without hitting Git.</li>
+                          <li>Ideal for single-developer experiments, rapid bug investigation, and sandbox testing.</li>
+                          <li>Bypasses remote Git branches; does not produce a Git audit trail.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Channel Comparison Table */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3">Feature Comparison Matrix</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-200 bg-slate-50 text-[11px] text-slate-600 font-semibold">
+                            <th className="py-2 px-3">Dimension</th>
+                            <th className="py-2 px-3 text-blue-800">Channel A: Git & abapGit</th>
+                            <th className="py-2 px-3 text-slate-800">Channel B: Direct ADT</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-[11px]">
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Primary Objective</td>
+                            <td className="py-2 px-3 text-blue-900 font-medium">Audited Production CI/CD & Team Development</td>
+                            <td className="py-2 px-3 text-slate-700">Rapid Sandbox Prototyping & Hotfixes</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Audit Trail</td>
+                            <td className="py-2 px-3 text-slate-700">Full Git commit logs with SHA-1 hashes and branch tracking</td>
+                            <td className="py-2 px-3 text-slate-700">SAP object version database in table VRSD</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Peer Review Support</td>
+                            <td className="py-2 px-3 text-slate-700">GitHub/GitLab Pull Requests and diff inspections</td>
+                            <td className="py-2 px-3 text-slate-700">Single-developer object lock</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Multi-File Serialization</td>
+                            <td className="py-2 px-3 text-slate-700">Generates .clas.abap, locals_imp.abap, and .clas.xml</td>
+                            <td className="py-2 px-3 text-slate-700">Single class source stream buffer</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Rollback Capability</td>
+                            <td className="py-2 px-3 text-slate-700">Instant git revert or checkout of any historical commit</td>
+                            <td className="py-2 px-3 text-slate-700">Manual rollback via SAP Version Management</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Transport Integration</td>
+                            <td className="py-2 px-3 text-slate-700">CTS Workbench Transport Requests (SE09/SE10)</td>
+                            <td className="py-2 px-3 text-slate-700">CTS Workbench Transport Requests (SE09/SE10)</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Activation Gate</td>
+                            <td className="py-2 px-3 text-emerald-800 font-semibold">Strict Human Gate confirmation required</td>
+                            <td className="py-2 px-3 text-emerald-800 font-semibold">Strict Human Gate confirmation required</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* SECTION 3: HOW IT WORKS UNDER THE HOOD (6-STAGE CLOSED LOOP) */}
+              {(guideSection === 'all' || guideSection === 'how-it-works') && (
+                <section id="guide-how-it-works" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-emerald-700 border border-emerald-200">
+                      <RefreshCw className="h-3 w-3" /> Section 3: Execution Mechanism
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">How It Works Under the Hood: The 6-Stage Autonomous Closed Loop</h2>
+                    <p className="text-xs text-slate-500">
+                      Detailed walkthrough of the automated synthesis, validation, self-healing, and activation cycle.
+                    </p>
+                  </div>
+
+                  {/* Visual Stepper Pipeline */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[
+                      {
+                        stage: 'Stage 1',
+                        name: 'Clarification & Intake',
+                        endpoint: 'POST /api/orchestrate/clarify',
+                        desc: 'Evaluates functional requirements, identifies business ambiguities, and formulates 3 structured decision cards (Edge Cases, Database Tables, and Exception Handling).',
+                        badge: 'Requirements Phase',
+                        color: 'border-blue-200 bg-blue-50/30 text-blue-900'
+                      },
+                      {
+                        stage: 'Stage 2',
+                        name: 'Synthesis & Serialization',
+                        endpoint: 'POST /api/orchestrate/tight-loop',
+                        desc: 'Synthesizes Clean ABAP 7.50+ code across 3 files: global definition (.clas.abap), local test classes (.locals_imp.abap), and abapGit metadata envelope (.clas.xml).',
+                        badge: 'Code Generation',
+                        color: 'border-indigo-200 bg-indigo-50/30 text-indigo-900'
+                      },
+                      {
+                        stage: 'Stage 3',
+                        name: 'In-Memory Syntax Check',
+                        endpoint: '/sap/bc/adt/syntaxcheck',
+                        desc: 'Transmits code buffer to SAP ADT in-memory compiler. Validates syntax against live SAP Data Dictionary without persisting invalid code to the database.',
+                        badge: 'Compiler Gate',
+                        color: 'border-amber-200 bg-amber-50/30 text-amber-900'
+                      },
+                      {
+                        stage: 'Stage 4',
+                        name: 'ABAP Unit Test Execution',
+                        endpoint: '/sap/bc/adt/abapunit/testruns',
+                        desc: 'Executes test methods in the SAP kernel. Evaluates assertions (assert_equals, assert_bound) and measures execution durations in milliseconds.',
+                        badge: 'Automated Testing',
+                        color: 'border-purple-200 bg-purple-50/30 text-purple-900'
+                      },
+                      {
+                        stage: 'Stage 5',
+                        name: 'Self-Healing Feedback Loop',
+                        endpoint: 'Iterative Autonomous Engine',
+                        desc: 'If compiler errors or unit test failures occur, exact error lines and failure diagnostics are fed back into the model to auto-correct code across up to 3 passes.',
+                        badge: 'Self-Healing',
+                        color: 'border-rose-200 bg-rose-50/30 text-rose-900'
+                      },
+                      {
+                        stage: 'Stage 6',
+                        name: 'Human Review & Activation Gate',
+                        endpoint: '/sap/bc/adt/activation',
+                        desc: 'Autonomous execution pauses. The developer inspects side-by-side diffs and confirms activation. The system invokes ADT activation to transition from Inactive to Active.',
+                        badge: 'Human Governance Gate',
+                        color: 'border-emerald-200 bg-emerald-50/30 text-emerald-900'
+                      },
+                    ].map((step, idx) => (
+                      <div key={idx} className={`rounded-xl border p-4 flex flex-col justify-between space-y-2.5 ${step.color}`}>
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono font-bold text-xs uppercase tracking-wider">{step.stage}</span>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/80 border border-slate-200">
+                              {step.badge}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-sm text-slate-900 mt-1">{step.name}</h4>
+                          <span className="font-mono text-[10px] text-slate-500 block mb-2">{step.endpoint}</span>
+                          <p className="text-xs text-slate-700 leading-relaxed">{step.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Self-Healing Mechanism Detail Callout */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">The Self-Healing Mechanism Explained</h3>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      When an in-memory syntax error occurs (for example, missing variable declaration or illegal constructor expression), the orchestrator intercepts the exact line number, error code, and compiler description from the SAP ADT XML response. Rather than failing and halting, it automatically formats a diagnostic remediation payload and re-prompts the synthesizer. The synthesizer repairs the pinpointed line while maintaining Clean ABAP conventions. The loop re-runs syntax and unit tests until zero errors remain or the iteration threshold (3 passes) is met.
+                    </p>
+                  </div>
+                </section>
+              )}
+
+              {/* SECTION 4: HOW TO USE (STEP-BY-STEP OPERATOR GUIDE) */}
+              {(guideSection === 'all' || guideSection === 'how-to-use') && (
+                <section id="guide-how-to-use" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-cyan-700 border border-cyan-200">
+                      <Terminal className="h-3 w-3" /> Section 4: Operator Manual
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">How to Use the Studio: Step-by-Step Operator Guide</h2>
+                    <p className="text-xs text-slate-500">
+                      Practical instructions for developers and architects executing end-to-end ABAP workflows.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      {
+                        step: 'Step 1',
+                        title: 'Input Requirements via Prompt or Voice Dictation',
+                        action: 'Enter functional description into the prompt box or click the microphone icon to speak requirements. Configure target Class Name (e.g., ZCL_ORDER_DISCOUNT), Package ($TMP for local or ZDEV for transportable development), and relevant database tables (e.g., VBAK, VBAP).'
+                      },
+                      {
+                        step: 'Step 2',
+                        title: 'Formulate Plan & Review Clarification Cards',
+                        action: 'Click "Clarify & Formulate Plan". The assistant evaluates your input and renders 3 interactive decision cards: Business Logic Edge Cases, Database Schema Selection, and Error Handling Strategy. Select option chips to tailor behavior or proceed with recommended defaults.'
+                      },
+                      {
+                        step: 'Step 3',
+                        title: 'Execute the Automated Tight Loop',
+                        action: 'Click "Run Automated Tight Loop" for one-click hands-free orchestration. The studio steps through: Clarify -> Generate -> Git Commit -> abapGit Sync -> In-Memory Syntax Check -> ABAP Unit Test Execution. If errors arise, the self-healing loop resolves them automatically.'
+                      },
+                      {
+                        step: 'Step 4',
+                        title: 'Inspect Multi-File Code Artifacts & Side-by-Side Diffs',
+                        action: 'Switch between the top tabs: .clas.abap for the global class implementation, locals_imp.abap for the test suite, .clas.xml for abapGit metadata, and the Diff tab to view interactive side-by-side Monaco diffs highlighting exactly what changed.'
+                      },
+                      {
+                        step: 'Step 5',
+                        title: 'Perform Conversational Refinements',
+                        action: 'Use the bottom chat input to instruct the AI with targeted adjustments (e.g., "Add currency conversion logic using cl_exchange_rates", "Enforce authority check on sales org VKORG", or "Add test scenario for negative quantities"). The assistant updates all files in sync.'
+                      },
+                      {
+                        step: 'Step 6',
+                        title: 'Git Commit, Remote Push & abapGit Synchronization',
+                        action: 'Click "Push Git" to create an atomic git commit and push to your configured GitHub/GitLab remote branch. Set repository credentials and target branches in the Connections tab.'
+                      },
+                      {
+                        step: 'Step 7',
+                        title: 'Perform Controlled Activation in SAP (Human Gate)',
+                        action: 'Review compiler diagnostics and unit test coverage in the Inspector view. Click "Activate in SAP" and confirm the activation dialog. The system invokes /sap/bc/adt/activation to transition the object from Inactive to Active state in the SAP DDIC.'
+                      },
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+                        <div className="flex-none">
+                          <span className="inline-flex h-7 w-16 items-center justify-center rounded-lg bg-slate-100 font-mono font-bold text-xs text-slate-800 border border-slate-200">
+                            {item.step}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-sm text-slate-900">{item.title}</h4>
+                          <p className="text-xs text-slate-600 leading-relaxed">{item.action}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* SECTION 5: ON-PREMISE SAP DEV PREREQUISITES & CONNECTIVITY */}
+              {(guideSection === 'all' || guideSection === 'connectivity') && (
+                <section id="guide-connectivity" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-amber-700 border border-amber-200">
+                      <Server className="h-3 w-3" /> Section 5: SAP Connectivity & Prerequisites
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">On-Premise SAP DEV Prerequisites & Connectivity Guide</h2>
+                    <p className="text-xs text-slate-500">
+                      Standard SAP GUI administrator setup for SICF service trees and SU01 developer authorization profiles.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* SICF Service Activation */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Link2 className="h-4 w-4 text-blue-600" />
+                        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900">1. Transaction SICF: ADT Service Tree</h3>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Open SAP GUI and execute Transaction <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-blue-800">SICF</code>. Navigate down the path:
+                      </p>
+                      <div className="rounded bg-slate-900 p-2.5 font-mono text-[11px] text-emerald-400">
+                        /default_host/sap/bc/adt
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Right-click and select <strong>Activate Service</strong> for the ADT node and verify that the following sub-nodes are active:
+                      </p>
+                      <ul className="list-disc pl-4 space-y-1 text-xs text-slate-700">
+                        <li><code>/sap/bc/adt/discovery</code> - Core service discovery</li>
+                        <li><code>/sap/bc/adt/syntaxcheck</code> - In-memory compiler</li>
+                        <li><code>/sap/bc/adt/abapunit/testruns</code> - Unit test execution</li>
+                        <li><code>/sap/bc/adt/activation</code> - DDIC activation</li>
+                        <li><code>/sap/bc/adt/oo/classes</code> - Class source read/write</li>
+                        <li><code>/sap/bc/adt/atc/runs</code> - Static code analysis</li>
+                      </ul>
+                    </div>
+
+                    {/* SU01 Authorizations */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Key className="h-4 w-4 text-amber-600" />
+                        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900">2. Transaction SU01: Developer Roles</h3>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        The technical user configured in the studio requires standard ABAP developer authorizations:
+                      </p>
+                      <div className="space-y-2 text-xs">
+                        <div className="rounded border border-slate-200 bg-slate-50 p-2.5">
+                          <span className="font-mono font-bold text-blue-800 block">S_DEVELOP</span>
+                          <p className="text-slate-600 text-[11px] mt-0.5">
+                            ACTVT: 01 (Create), 02 (Change), 03 (Display) | OBJTYPE: CLAS, INTF, PROG | DEVCLASS: * (or target package)
+                          </p>
+                        </div>
+                        <div className="rounded border border-slate-200 bg-slate-50 p-2.5">
+                          <span className="font-mono font-bold text-blue-800 block">S_RFC</span>
+                          <p className="text-slate-600 text-[11px] mt-0.5">
+                            RFC_TYPE: FUGR | RFC_NAME: SADT_*, RFC1, SDIX
+                          </p>
+                        </div>
+                        <div className="rounded border border-slate-200 bg-slate-50 p-2.5">
+                          <span className="font-mono font-bold text-blue-800 block">S_CTS_ADMI & S_TRANSPRT</span>
+                          <p className="text-slate-600 text-[11px] mt-0.5">
+                            Authorizations for Workbench Transport Request creation, assignment, and release.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Offline Simulation Mode Callout */}
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-800 font-semibold text-xs">
+                      <Radio className="h-4 w-4 text-emerald-600" />
+                      Offline Simulation Mode for Disconnected / Air-Gapped Environments
+                    </div>
+                    <p className="text-xs text-emerald-900 leading-relaxed">
+                      If you do not have immediate connectivity to an on-premise SAP DEV instance, toggle <strong>Offline Simulation Mode</strong> in the Connections tab. The platform includes an in-memory simulation engine that models ADT compiler checks, unit test results, and activation responses with realistic latencies, allowing you to build, test, and refine code completely offline.
+                    </p>
+                  </div>
+                </section>
+              )}
+
+              {/* SECTION 6: ABAPGIT SERIALIZATION & CTS TRANSPORT MANAGEMENT */}
+              {(guideSection === 'all' || guideSection === 'abapgit-cts') && (
+                <section id="guide-abapgit-cts" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-purple-700 border border-purple-200">
+                      <GitCommit className="h-3 w-3" /> Section 6: Version Control
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">abapGit Serialization Standards & CTS Transport Management</h2>
+                    <p className="text-xs text-slate-500">
+                      Directory structure conventions, multi-file class serialization, and SAP CTS Workbench Transport integration.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* abapGit File Structure */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+                      <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900">Standard abapGit Repository Structure</h3>
+                      <div className="rounded bg-slate-900 p-3 font-mono text-[11px] text-slate-300 space-y-1">
+                        <div className="text-blue-400">/src/</div>
+                        <div className="pl-4 text-emerald-400">ZCL_ORDER_DISCOUNT.clas.abap        # Global class & methods</div>
+                        <div className="pl-4 text-amber-400">ZCL_ORDER_DISCOUNT.clas.locals_imp.abap # Unit test suite (FOR TESTING)</div>
+                        <div className="pl-4 text-purple-400">ZCL_ORDER_DISCOUNT.clas.xml         # abapGit metadata envelope</div>
+                        <div className="pl-4 text-slate-400">package.devc.xml                    # SAP package descriptor</div>
+                        <div className="text-blue-400">.abapgit.xml                          # abapGit repository settings</div>
+                      </div>
+                      <ul className="list-disc pl-4 space-y-1 text-xs text-slate-600">
+                        <li><strong>.clas.abap:</strong> Contains the global class pool definition, visibility sections (PUBLIC/PROTECTED/PRIVATE), and global method implementations.</li>
+                        <li><strong>.locals_imp.abap:</strong> Contains local helper classes and ABAP Unit test definitions decorated with <code>FOR TESTING</code> and <code>RISK LEVEL HARMLESS</code>.</li>
+                        <li><strong>.clas.xml:</strong> Contains object metadata including UUID, author, language, and transport status.</li>
+                      </ul>
+                    </div>
+
+                    {/* CTS Transport Requests */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+                      <h3 className="font-bold text-xs uppercase tracking-wider text-slate-900">SAP CTS Workbench Transport Workflow</h3>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        In non-$TMP packages, changes must be recorded under a Change and Transport System (CTS) Workbench Request before they can be promoted to QA or Production.
+                      </p>
+                      <div className="space-y-2 text-xs">
+                        <div className="rounded border border-slate-200 bg-slate-50 p-2.5">
+                          <span className="font-semibold text-slate-900 block">1. Transport Creation (SE09 / SE10)</span>
+                          <p className="text-slate-600 text-[11px] mt-0.5">
+                            Create a Workbench Request directly in SAP GUI or via the studio Connections tab using the "Create New Transport" form.
+                          </p>
+                        </div>
+                        <div className="rounded border border-slate-200 bg-slate-50 p-2.5">
+                          <span className="font-semibold text-slate-900 block">2. Object Locking & Assignment</span>
+                          <p className="text-slate-600 text-[11px] mt-0.5">
+                            All generated artifacts (class pool, test classes, XML metadata) are locked under the designated transport task.
+                          </p>
+                        </div>
+                        <div className="rounded border border-slate-200 bg-slate-50 p-2.5">
+                          <span className="font-semibold text-slate-900 block">3. Releasing Transport Tasks</span>
+                          <p className="text-slate-600 text-[11px] mt-0.5">
+                            Once testing is verified, release tasks and the main transport request to make the change available for import into QA.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* SECTION 7: CLEAN ABAP STANDARDS & SAFETY GOVERNANCE MATRIX */}
+              {(guideSection === 'all' || guideSection === 'clean-abap') && (
+                <section id="guide-clean-abap" className="space-y-4">
+                  <div className="border-b border-slate-200 pb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase text-rose-700 border border-rose-200">
+                      <ShieldCheck className="h-3 w-3" /> Section 7: Code Quality & Safety
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 mt-2">Clean ABAP 7.50+ Standards & Safety Governance Matrix</h2>
+                    <p className="text-xs text-slate-500">
+                      Modern syntax patterns, SQL injection defense, authorization checks, and human activation governance.
+                    </p>
+                  </div>
+
+                  {/* Clean ABAP Patterns Grid */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Enforced Clean ABAP 7.50+ Syntax Constructs</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+                        <span className="font-semibold text-slate-900 block">Inline Data Declarations</span>
+                        <code className="font-mono text-[11px] text-blue-700 block bg-white p-1.5 rounded border border-slate-200">
+                          DATA(discount) = calculate_discount( total ).
+                        </code>
+                        <p className="text-[11px] text-slate-500">Avoid top-level DATA: blocks; declare variables where initialized.</p>
+                      </div>
+
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+                        <span className="font-semibold text-slate-900 block">Constructor Expressions</span>
+                        <code className="font-mono text-[11px] text-blue-700 block bg-white p-1.5 rounded border border-slate-200">
+                          items = VALUE #( ( id = 1 price = '50.00' ) ).
+                        </code>
+                        <p className="text-[11px] text-slate-500">Use VALUE #(), COND #(), and SWITCH #() instead of procedural loops.</p>
+                      </div>
+
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+                        <span className="font-semibold text-slate-900 block">Table Expressions</span>
+                        <code className="font-mono text-[11px] text-blue-700 block bg-white p-1.5 rounded border border-slate-200">
+                          DATA(order) = orders[ vbeln = order_id ].
+                        </code>
+                        <p className="text-[11px] text-slate-500">Use bracket table expressions instead of READ TABLE ... WITH KEY.</p>
+                      </div>
+
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+                        <span className="font-semibold text-slate-900 block">String Templates</span>
+                        <code className="font-mono text-[11px] text-blue-700 block bg-white p-1.5 rounded border border-slate-200">
+                          msg = |Order &#123; order_id &#125; completed.|.
+                        </code>
+                        <p className="text-[11px] text-slate-500">Use embedded pipe string templates instead of CONCATENATE.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security & Safeguards */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Security & Quality Safeguards</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div className="p-3 rounded-lg border border-rose-200 bg-rose-50/50">
+                        <span className="font-bold text-rose-900 block mb-1">SQL Injection Prevention</span>
+                        <p className="text-rose-800 text-[11px] leading-relaxed">
+                          Never concatenate raw strings into dynamic Open SQL statements. Use parameterized queries or sanitize with CL_ABAP_DYN_PRG.
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-amber-200 bg-amber-50/50">
+                        <span className="font-bold text-amber-900 block mb-1">Mandatory Authority Checks</span>
+                        <p className="text-amber-800 text-[11px] leading-relaxed">
+                          Any public method exposing business records must execute explicit AUTHORITY-CHECK statements against relevant authorization objects.
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-blue-200 bg-blue-50/50">
+                        <span className="font-bold text-blue-900 block mb-1">Performance Safeguards</span>
+                        <p className="text-blue-800 text-[11px] leading-relaxed">
+                          Zero SELECT queries inside loops. Prefer CDS views, inner joins, or FOR ALL ENTRIES for bulk retrieval.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Safety Governance Matrix Table */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Safety Governance Matrix</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-200 bg-slate-50 text-[11px] text-slate-600 font-semibold">
+                            <th className="py-2 px-3">Action Category</th>
+                            <th className="py-2 px-3 text-emerald-700">Autonomous Execution Allowed</th>
+                            <th className="py-2 px-3 text-rose-700">Strictly Prohibited</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-[11px]">
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Code Synthesis</td>
+                            <td className="py-2 px-3 text-emerald-800">Clean ABAP 7.50+ classes, unit test suites, and XML metadata</td>
+                            <td className="py-2 px-3 text-rose-800">Directly modifying standard SAP core objects (SAP namespace)</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Compiler Validation</td>
+                            <td className="py-2 px-3 text-emerald-800">In-memory syntax checks (/sap/bc/adt/syntaxcheck)</td>
+                            <td className="py-2 px-3 text-rose-800">Persisting non-compiling code to permanent database</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Unit Testing</td>
+                            <td className="py-2 px-3 text-emerald-800">Automated execution of test cases via /abapunit</td>
+                            <td className="py-2 px-3 text-rose-800">Testing destructive transactions or altering database records in tests</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Activation Gate</td>
+                            <td className="py-2 px-3 text-slate-600">None without explicit user confirmation</td>
+                            <td className="py-2 px-3 text-rose-800 font-bold">Autonomous DDIC activation without human review</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 px-3 font-medium text-slate-900">Environment Scope</td>
+                            <td className="py-2 px-3 text-emerald-800">Development (DEV) system instances only</td>
+                            <td className="py-2 px-3 text-rose-800 font-bold">Direct deployment or connection to QA or Production</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Human Activation Gate Notice */}
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-blue-900 font-bold text-xs">
+                      <ShieldCheck className="h-4 w-4 text-blue-600" />
+                      The Human Activation Gate Principle
+                    </div>
+                    <p className="text-xs text-blue-900 leading-relaxed">
+                      DDIC activation in an SAP system permanently transitions an object into active runtime state, affecting all transactions referencing that class. To preserve governance and audit compliance, the studio enforces an unskippable human review gate: <strong>the system will never trigger activation without explicit developer confirmation.</strong>
+                    </p>
+                  </div>
+                </section>
+              )}
+
             </div>
           </div>
         )}
