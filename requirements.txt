@@ -1,0 +1,9 @@
+# Core Web Framework and Networking
+streamlit>=1.35.0
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Optional AI Providers (Use any or leave empty for template synthesizer)
+anthropic>=0.25.0
+google-generativeai>=0.5.0
+openai>=1.30.0

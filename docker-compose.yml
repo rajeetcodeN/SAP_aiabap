@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  abap-generator-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sap-abap-generator-portal
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      # Mount parent src/ folder so generated code syncs with repository
+      - ../src:/app/src
+    environment:
+      - PYTHONUNBUFFERED=1
