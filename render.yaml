@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: sap-aiabap-portal
+    runtime: python
+    buildCommand: "cd frontend && npm install && npm run build && cd .. && pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    plan: free
+    envVars:
+      - key: SAP_URL
+        value: http://sapdev.company.corp:8000
+      - key: SAP_CLIENT
+        value: "100"
+      - key: SAP_LANGUAGE
+        value: "EN"
+      - key: SAP_ALLOW_SELF_SIGNED
+        value: "true"
+      - key: SAP_OFFLINE_MODE
+        value: "true"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

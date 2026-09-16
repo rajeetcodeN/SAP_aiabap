@@ -34,6 +34,13 @@ env/
 # Streamlit
 .streamlit/secrets.toml
 
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+package-lock.json
+frontend/package-lock.json
+
 # OS / IDE
 .DS_Store
 Thumbs.db
